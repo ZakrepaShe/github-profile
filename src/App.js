@@ -6,7 +6,7 @@ import User from "./pages/User";
 class App extends Component {
   render() {
     return (
-      <Router>
+      <Router basename="/github-profile">
         <Switch>
           <Route path="/:user" component={User} />
           <Route exact path="/" component={StartList} />
