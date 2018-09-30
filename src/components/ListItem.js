@@ -4,6 +4,7 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import ButtonBase from '@material-ui/core/ButtonBase';
+import { Link } from "react-router-dom";
 
 const styles = theme => ({
   root: {
@@ -53,7 +54,7 @@ function Item(props) {
             <Grid item xs>
               <Grid item container>
                 <Typography gutterBottom variant="subheading">
-                  {login}
+                  <Link to={`/${login}`}>{login}</Link>
                 </Typography>
                 {admin
                   ? <Typography gutterBottom variant="subheading" className={classes.badge}>

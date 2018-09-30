@@ -7,11 +7,12 @@ import {Capital} from "../utils/helpers";
 class Follow extends Component {
   constructor(props) {
     super(props);
+    const subPage = props.match.params.subPage || 'following';
     this.state = {
       user: props.match.params.user,
-      subPage: props.match.params.subPage,
-      [`${props.match.params.subPage}Arr`]: [],
-      [`loading${Capital(props.match.params.subPage)}`]: true,
+      subPage: subPage,
+      [`${subPage}Arr`]: [],
+      [`loading${Capital(subPage)}`]: true,
     };
   }
 
@@ -26,8 +27,11 @@ class Follow extends Component {
   }
 
   componentDidUpdate(prevProps, prevState){
-    if (prevProps.match.params.subPage !== this.props.match.params.subPage) {
-      const {user,subPage} = this.props.match.params;
+    if (
+      prevProps.match.params.subPage !== this.props.match.params.subPage
+      || prevProps.match.params.user !== this.props.match.params.user
+    ) {
+      const {user,subPage='following'} = this.props.match.params;
       this.setState({[`loading${Capital(subPage)}`]: true});
       api()[`get${Capital(subPage)}`](user).then(
         res => {

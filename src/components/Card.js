@@ -5,6 +5,8 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import {withRouter} from "react-router-dom";
+import {connect} from '../utils/helpers'
 
 const styles = theme => ({
   card: {
@@ -20,22 +22,26 @@ const styles = theme => ({
   },
 });
 
-function MediaCard(
-  {
+const MediaCard = (props) => {
+  const {
     classes,
-    imgUrl,
-    pageLink,
+    userInfo,
+  } = props;
+  const {
+    avatar_url: imgUrl,
+    html_url: pageLink,
     name,
     login,
     company,
     location,
-    bio,
-    repositories,
+    public_repos: repositories,
     following,
     followers,
-    clickFunction,
-  }
-) {
+    bio,
+  } = userInfo;
+  const clickFunction = () =>{
+    props.history.push(`/${login}/edit`)
+  };
   return (
     <Card className={classes.card}>
         {
@@ -117,7 +123,7 @@ function MediaCard(
           </Button>
         </CardContent>
     </Card>
-  );
-}
+  )
+};
 
-export default withStyles(styles)(MediaCard);
+export default withStyles(styles)(withRouter(connect(MediaCard)));

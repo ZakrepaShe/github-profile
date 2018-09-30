@@ -1,12 +1,13 @@
 import React, {Component} from 'react';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { Route, Switch, Link } from "react-router-dom";
+import {Route, Switch, Link, withRouter} from "react-router-dom";
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-
 import Card from '../components/Card';
 import {api} from '../utils/api';
 import Follow from "./Follow";
+import Edit from "./Edit";
+import {Provider} from '../utils/helpers';
 
 class User extends Component {
   constructor(props) {
@@ -24,12 +25,26 @@ class User extends Component {
         following: '',
         followers: '',
       },
+      followersArr: [],
+      followingArr: [],
       loadingUser: true,
+      loadingFollowers: true,
+      loadingFollowing: true,
     };
   }
 
   componentWillMount() {
     const {user} = this.state;
+    this.getUser(user)
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.match.params.user !== this.props.match.params.user) {
+      this.getUser(this.props.match.params.user)
+    }
+  }
+
+  getUser(user) {
     api().getSingleUser(user).then(
       res => {
         this.setState({userInfo: {...res}});
@@ -50,66 +65,69 @@ class User extends Component {
     )
   }
 
+  save(saveData) {
+    const {secret, ...sendData} = saveData;
+    api(secret).patchSingleUser(sendData).then(
+      res=>{
+        const { user }= this.state;
+        this.getUser(user);
+        this.props.history.push(`/${user}`)
+      }
+    )
+  }
+
+  getProviderState() {
+    return {
+      ...this.state,
+      save: this.save
+    }
+  }
+
   render() {
     const {
-      userInfo,
+      userInfo: {login},
       loadingUser,
     } = this.state;
-    const {
-      avatar_url: imgUrl,
-      html_url: pageLink,
-      name,
-      login,
-      company,
-      location,
-      public_repos: repositories,
-      following,
-      followers,
-      bio,
-    } = userInfo;
     return (
-      <Grid container spacing={16} justify="center">
-        <Grid item xs={4}>
-          {
-            loadingUser
-              ? <CircularProgress/>
-              : <Card
-                imgUrl={imgUrl}
-                pageLink={pageLink}
-                name={name}
-                login={login}
-                company={company}
-                location={location}
-                bio={bio}
-                repositories={repositories}
-                following={following}
-                followers={followers}
-                clickFunction={() => {}}
-              />
-          }
-        </Grid>
-        <Grid item xs={6}>
-          <Paper>
-            <Grid container spacing={16}>
-              <Grid item xs={4}>
-                <Link to={`/${login}/following`}>following</Link>
+      <Provider value={this.getProviderState()}>
+        <Grid container spacing={16} justify="center">
+          <Grid item xs={4}>
+            {
+              loadingUser
+                ? <CircularProgress />
+                : <Card />
+            }
+          </Grid>
+          <Grid item xs={6}>
+            <Grid container spacing={16} justify="center">
+              <Grid item xs={12}>
+                <Paper>
+                  <Grid container spacing={16}>
+                    <Grid item xs={4}>
+                      <Link to={`/${login}/following`}>following</Link>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Link to={`/${login}/followers`}>followers</Link>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Link to={`/${login}/edit`}>edit</Link>
+                    </Grid>
+                  </Grid>
+                </Paper>
               </Grid>
-              <Grid item xs={4}>
-                <Link to={`/${login}/followers`}>followers</Link>
-              </Grid>
-              <Grid item xs={4}>
-                <Link to={`/${login}/edit`}>edit</Link>
+              <Grid item xs={12}>
+                <Switch>
+                  <Route exact path="/:user" component={Follow}/>
+                  <Route path="/:user/:subPage(following|followers)" component={Follow}/>
+                  <Route exact path="/:user/edit" component={Edit} />}
+                </Switch>
               </Grid>
             </Grid>
-          </Paper>
-          <Switch>
-            <Route exact path="/:user/:subPage" component={Follow} />
-            {/*<Route exact path="/:user/edit" component={Edit} />*/}
-          </Switch>
+          </Grid>
         </Grid>
-      </Grid>
+      </Provider>
     );
   }
 }
 
-export default User;
+export default withRouter(User);
