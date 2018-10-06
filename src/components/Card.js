@@ -4,9 +4,8 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import {withRouter} from "react-router-dom";
-import {connect} from '../utils/helpers'
+import { connect } from 'react-redux';
+import {infoStateSelector} from "../store/reducers/info";
 
 const styles = theme => ({
   card: {
@@ -39,9 +38,6 @@ const MediaCard = (props) => {
     followers,
     bio,
   } = userInfo;
-  const clickFunction = () =>{
-    props.history.push(`/${login}/edit`)
-  };
   return (
     <Card className={classes.card}>
         {
@@ -118,12 +114,13 @@ const MediaCard = (props) => {
               </Typography>
               : ''
           }
-          <Button onClick={clickFunction} variant="contained" color="primary" className={classes.button}>
-            Edit
-          </Button>
         </CardContent>
     </Card>
   )
 };
 
-export default withStyles(styles)(withRouter(connect(MediaCard)));
+const mapStateToProps = state => ({
+  userInfo: infoStateSelector(state),
+});
+
+export default withStyles(styles)(connect(mapStateToProps)(MediaCard));
